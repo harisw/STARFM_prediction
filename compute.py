@@ -20,11 +20,11 @@ def compute_distance(candidate_pixel, central_pixel):
 	row = 0
 	dist_pixel = np.zeros([1199, 1199], dtype=float)
 	bar = tqdm(total=1199)
-	print "Computing distance\n"
+	print "\nComputing distance\n"
 
-	while(row<1197):
+	while(row<1199):
 		col = 0
-		while(col < 1197):
+		while(col < 1199):
 			threshold_pixel = central_pixel[row][col]
 			for i in range(0,2):
 				for l in range(0, 2):
@@ -48,6 +48,9 @@ def compute_distance(candidate_pixel, central_pixel):
 def compute_combined_weight(spec_diff, temp_diff, dist_pixel):
 	combined_pixel = np.ones([1199, 1199], dtype=float)
 	row = 0
+	bar = tqdm(total=2398)
+	print "\nComputing Combined Weight \n"
+
 	while(row<1199):
 		col = 0
 		while(col < 1199):
@@ -55,11 +58,11 @@ def compute_combined_weight(spec_diff, temp_diff, dist_pixel):
 			#Compute C[ijk]
 			col += 1
 		row += 1
+		bar.update(1)
 
 	combined_sum = np.sum(combined_pixel)
 	weight_pixel = np.ones([1199, 1199], dtype=float)
 	row = 0
-	print combined_sum
 	while(row < 1199):
 		col = 0
 		while(col < 1199):
@@ -67,12 +70,17 @@ def compute_combined_weight(spec_diff, temp_diff, dist_pixel):
 				weight_pixel[row][col] = (1 / combined_pixel[row][col]) / (1 / combined_sum)
 			col += 1
 		row += 1
+		bar.update(1)
+	bar.close()
 	return weight_pixel
 
 def refine_pixel(candidate_pixel, spec_diff, temp_diff):
 	spec_max = spec_diff.max()
 	temp_max = temp_diff.max()
 	row = 0
+	bar = tqdm(total=1199)
+	print "\nRefining Pixel\n"
+
 	while(row<1199):
 		col = 0
 		while(col < 1199):
@@ -80,21 +88,24 @@ def refine_pixel(candidate_pixel, spec_diff, temp_diff):
 				candidate_pixel[row][col] = 0
 			col += 1
 		row += 1
+		bar.update(1)
+	bar.close()
+
 	return candidate_pixel
 
 def generate_prediction(Lk, Mk, M0, weight):
 	pixel_result = np.empty([1199, 1199], dtype=float)
 	row = 0
-	# bar = IncrementalBar('Processing', max=1199)
+	bar = tqdm(total=1199)
 	print "Generating Prediction Pixel\n"
 	while(row<1199):
 		col = 0
 		while(col < 1199):
 			pixel_result[row][col] = weight[row][col] * (float(M0[row][col]) + float(Lk[row][col]) - float(Mk[row][col]))
 			col += 1
-		# bar.next()
+		bar.update(1)
 		row += 1
-	# bar.finish()
+	bar.close()
 	return pixel_result
 
 if __name__ == '__main__':
@@ -115,4 +126,4 @@ if __name__ == '__main__':
 	weight_pixel = compute_combined_weight(spec_diff, temporal_diff, dist_pixel)
 
 	pixel_result = generate_prediction(Lkimg, Mkimg, M0img, weight_pixel)
-	print pixel_result
+	# print pixel_result
