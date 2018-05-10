@@ -97,6 +97,28 @@ def generate_prediction(Lk, Mk, M0, weight):
 	# bar.finish()
 	return pixel_result
 
+def write_pixel(pixel_result):
+	bar = tqdm(total=1199)
+	print "Writing result to file\n"
+
+	with open('output.txt', 'w') as output_file:
+		row = 0
+		while(row<1199):
+			col = 0
+			one_row = "    "
+			# print row
+			while(col < 1199):
+				temp = int(pixel_result[row][col])
+				one_row = one_row + str(temp) + "    "
+				col += 1
+			row += 1
+			bar.update(1)
+			print col
+			output_file.write(one_row)
+			# output_file.write("\n")
+	bar.close()
+	# return
+
 if __name__ == '__main__':
 	Lkimg = central_filter.parseInputPixel("L7SR.05-24-01.txt")
 	Mkimg = central_filter.parseInputPixel("MOD09GHK.05-24-01.green.txt")
@@ -115,4 +137,4 @@ if __name__ == '__main__':
 	weight_pixel = compute_combined_weight(spec_diff, temporal_diff, dist_pixel)
 
 	pixel_result = generate_prediction(Lkimg, Mkimg, M0img, weight_pixel)
-	print pixel_result
+	write_pixel(pixel_result)
