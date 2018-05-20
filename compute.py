@@ -76,16 +76,19 @@ def refine_pixel(candidate_pixel, spec_diff, temp_diff):
 	spec_max = spec_diff.max()
 	temp_max = temp_diff.max()
 	row = 0
+	refined_pixel = np.ones([1199, 1199], dtype=float)
 	print("\nSpec Max "+str(spec_max))
 	print("\nTemp Max "+str(temp_max))
 	while(row<1199):
 		col = 0
 		while(col < 1199):
 			if candidate_pixel[row][col] > (spec_max + noise_const) and candidate_pixel[row][col] > (temp_max + noise_const):
-				candidate_pixel[row][col] = 0
+				refined_pixel[row][col] = 0
+			else:
+				refined_pixel[row][col] = candidate_pixel[row][col]
 			col += 1
 		row += 1
-	return candidate_pixel
+	return refined_pixel
 
 def generate_prediction(Lk, Mk, M0, weight):
 	pixel_result = np.empty([1199, 1199], dtype=int)
@@ -148,12 +151,12 @@ if __name__ == '__main__':
 	
 	# print("\nCandidate Pixel [0][0] "+str(candidate_pixel[0][0]))
 	
-	weight_pixel = compute_combined_weight(spec_diff, temporal_diff, dist_pixel)
-	pixel_result = generate_prediction(Lkimg, Mkimg, M0img, weight_pixel)
-	write_pixel(pixel_result, 'result.txt', 'final')
+	# weight_pixel = compute_combined_weight(spec_diff, temporal_diff, dist_pixel)
+	# pixel_result = generate_prediction(Lkimg, Mkimg, M0img, weight_pixel)
+	# write_pixel(pixel_result, 'result.txt', 'final')
 	write_pixel(classified_pixel, 'classified.txt')
-	write_pixel(spec_diff, 'spec_diff.txt')
-	write_pixel(temporal_diff, 'temporal_diff.txt')
-	write_pixel(dist_pixel, 'distance.txt')
+	# write_pixel(spec_diff, 'spec_diff.txt')
+	# write_pixel(temporal_diff, 'temporal_diff.txt')
+	# write_pixel(dist_pixel, 'distance.txt')
 	write_pixel(candidate_pixel, 'refined_candidate.txt')
-	write_pixel(central_pixel, 'central.txt')
+	# write_pixel(central_pixel, 'central.txt')
