@@ -33,8 +33,8 @@ def unsupervisedClassification(candidate_pixel, center_pixel):
 		col = 0
 		while(col < 1197):
 			threshold_pixel = center_pixel[row][col]
-			for i in range(0,2):
-				for l in range(0, 2):
+			for i in range(0,3):
+				for l in range(0, 3):
 					if float(candidate_pixel[row+i][col+l]) < center_pixel[row][col]:
 						classified_pixel[row+i][col+l] = 0
 					else:
@@ -46,14 +46,20 @@ def unsupervisedClassification(candidate_pixel, center_pixel):
 def getCentralPixel(images):
 	row = 0
 	center_pixel = np.empty([1199, 1199], dtype=float)
-	while(row<1199):
+	while(row<1197):
 		col = 0
-		while(col<1199):
+		while(col<1197):
 			window_sum = 0
-			for i in range(0,2):
-				for l in range(0,2):
-					window_sum += float(images[row+i][col+l])
-			new_pixel = window_sum/9
+			for i in range(0,3):
+				for l in range(0,3):
+					# print l
+					# print(row+i)
+					# print images[row+i][col+l]
+					window_sum += int(images[row+i][col+l])
+					# print window_sum
+			# print window_sum
+			new_pixel = float(window_sum)/9.0
+			# print new_pixel
 			center_pixel[row][col] = new_pixel
 			col += 1
 		row += 1
