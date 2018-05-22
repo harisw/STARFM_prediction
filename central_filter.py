@@ -33,11 +33,26 @@ def unsupervisedClassification(candidate_pixel, center_pixel):
 		col = 0
 		while(col < 1197):
 			threshold_pixel = center_pixel[row][col]
+			
+			min_pixel = 1000000
+			max_pixel = 0
 			for i in range(0,3):
 				for l in range(0, 3):
-					if float(candidate_pixel[row+i][col+l]) < center_pixel[row][col]:
+					# print min_pixel
+					if int(candidate_pixel[row+i][col+l]) > max_pixel:
+						max_pixel = int(candidate_pixel[row+i][col+l])	
+					if int(candidate_pixel[row+i][col+l]) < min_pixel:
+						min_pixel = int(candidate_pixel[row+i][col+l])
+
+			threshold_point = (float(min_pixel) + float(max_pixel)) / 2.0
+			# print threshold_point
+			for i in range(0,3):
+				for l in range(0, 3):
+					if float(candidate_pixel[row+i][col+l]) < threshold_point:
+						# print "\nkecil ", candidate_pixel[row+i][col+l]
 						classified_pixel[row+i][col+l] = 0
 					else:
+						# print "\nbesar "
 						classified_pixel[row+i][col+l] = center_pixel[row][col]
 			col += 1
 		row += 1

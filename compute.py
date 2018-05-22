@@ -32,12 +32,13 @@ def compute_distance(candidate_pixel, central_pixel):
 					if pos_x == 1 and pos_y == 1:
 						continue									#KALO DI TENGAH
 					elif float(candidate_pixel[pos_y][pos_x]) == central_pixel[row][col]:	#KALO NILAINYA SAMA DENGAN CENTRAL PIXEL
+						dist_pixel[pos_y][pos_x] = sqrt( (col - pos_x)**2 + (row - pos_y)**2)
 						# print "Posisi y :: "+str(pos_y)+ " Posisi x :: "+str(pos_x)+"\n"
 						# print str(i)+"  "+str(l)+"\n"
-						if (i == 0 or i == 2) and (l == 0 or l == 2):
-							dist_pixel[pos_y][pos_x] = sqrt(2)		#KALO DI POJOK SEARCH WINDOW
-						else:
-							dist_pixel[pos_y][pos_x] = 1		#KALO DI KIRI/KANAN/ATAS/BAWAH
+						# if (i == 0 or i == 2) and (l == 0 or l == 2):
+						# 	dist_pixel[pos_y][pos_x] = sqrt(2)		#KALO DI POJOK SEARCH WINDOW
+						# else:
+						# 	dist_pixel[pos_y][pos_x] = 1		#KALO DI KIRI/KANAN/ATAS/BAWAH
 					# print dist_pixel[pos_y][pos_x]
 			col += 1
 		bar.update(1)
@@ -110,6 +111,8 @@ def write_pixel(pixel_result, target_file, pixel_type='regular'):
 	print pixel_type+"\n"
 	offset = len(pixel_result[0])
 	bar = tqdm(total=offset)
+	x_const = 65535.0
+	y_const = 4294967295.0
 	with open(target_file, 'w') as output_file:
 		row = 0
 		while(row<offset):
@@ -117,7 +120,10 @@ def write_pixel(pixel_result, target_file, pixel_type='regular'):
 			one_row = "    "
 			while(col < offset):
 				if pixel_type == 'final':
-					temp = str(pixel_result[row][col])
+					temp = pixel_result[row][col]
+					# if temp > x_const:
+					# 	temp = int((x_const * pixel_result[row][col]) / y_const)
+					temp = str(temp)
 				else:
 					temp = "{0:.2f}".format(pixel_result[row][col])
 				one_row = one_row + temp + "    "
@@ -136,8 +142,8 @@ if __name__ == '__main__':
 		
 	central_pixel = central_filter.getCentralPixel(Lkimg)
 	classified_pixel = central_filter.unsupervisedClassification(Lkimg, central_pixel)
-	# print central_pixel[1][1]
-	# print central_pixel[0][1]
+	print central_pixel[1][1]
+	print central_pixel[0][1]
 	spec_diff = compute_diff(Lkimg, Mkimg)
 	temporal_diff = compute_diff(Mkimg, M0img)
 	dist_pixel = compute_distance(classified_pixel, central_pixel)
@@ -149,14 +155,15 @@ if __name__ == '__main__':
 
 	candidate_pixel = refine_pixel(classified_pixel, spec_diff, temporal_diff)
 	
-	# print("\nCandidate Pixel [0][0] "+str(candidate_pixel[0][0]))
+	print("\nCandidate Pixel [0][0] "+str(candidate_pixel[0][0]))
 	
-	# weight_pixel = compute_combined_weight(spec_diff, temporal_diff, dist_pixel)
-	# pixel_result = generate_prediction(Lkimg, Mkimg, M0img, weight_pixel)
-	# write_pixel(pixel_result, 'result.txt', 'final')
-	write_pixel(classified_pixel, 'classified.txt')
+	weight_pixel = compute_combined_weight(spec_diff, temporal_diff, dist_pixel)
+	pixel_result = generate_prediction(Lkimg, Mkimg, M0img, weight_pixel)
+	write_pixel(pixel_result, 'result[norefinechangeddist].txt', 'final')
+	# write_pixel(classified_pixel, 'classified.txt')
+	# write_pixel(weight_pixel, 'weight.txt')
 	# write_pixel(spec_diff, 'spec_diff.txt')
 	# write_pixel(temporal_diff, 'temporal_diff.txt')
 	# write_pixel(dist_pixel, 'distance.txt')
-	write_pixel(candidate_pixel, 'refined_candidate.txt')
+	# write_pixel(candidate_pixel, 'refined_candidate.txt')
 	# write_pixel(central_pixel, 'central.txt')
