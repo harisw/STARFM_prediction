@@ -5,25 +5,28 @@ from tqdm import tqdm
 
 noise_const = 0.005
 
-def compute_diff(first_img, second_img):
-	diff_pixel = np.zeros([1199, 1199], dtype=float)
+pixel_dimension = 1125
+central_pixel_dimension = pixel_dimension - 2
+
+def computeDiff(first_img, second_img):
+	diff_pixel = np.zeros([pixel_dimension, pixel_dimension], dtype=float)
 	row = 0
-	while(row < 1199):
+	while(row < pixel_dimension):
 		col = 0
-		while(col < 1199):
+		while(col < pixel_dimension):
 			diff_pixel[row][col] = abs(float(first_img[row][col]) - float(second_img[row][col]))
 			col += 1
 		row += 1
 	return np.array(diff_pixel)
 
-def compute_distance(candidate_pixel, central_pixel):
+def computeDistance(candidate_pixel, central_pixel):
 	row = 0
-	dist_pixel = np.zeros([1199, 1199], dtype=float)
-	bar = tqdm(total=1199)
+	dist_pixel = np.zeros([pixel_dimension, pixel_dimension], dtype=float)
+	bar = tqdm(total=pixel_dimension)
 	print "Computing distance\n"
-	while(row<1197):
+	while(row<central_pixel_dimension):
 		col = 0
-		while(col < 1197):
+		while(col < central_pixel_dimension):
 			threshold_pixel = central_pixel[row][col]
 			for i in range(0,3):
 				for l in range(0, 3):
@@ -33,56 +36,45 @@ def compute_distance(candidate_pixel, central_pixel):
 						continue									#KALO DI TENGAH
 					elif float(candidate_pixel[pos_y][pos_x]) == central_pixel[row][col]:	#KALO NILAINYA SAMA DENGAN CENTRAL PIXEL
 						dist_pixel[pos_y][pos_x] = sqrt( (col - pos_x)**2 + (row - pos_y)**2)
-						# print "Posisi y :: "+str(pos_y)+ " Posisi x :: "+str(pos_x)+"\n"
-						# print str(i)+"  "+str(l)+"\n"
-						# if (i == 0 or i == 2) and (l == 0 or l == 2):
-						# 	dist_pixel[pos_y][pos_x] = sqrt(2)		#KALO DI POJOK SEARCH WINDOW
-						# else:
-						# 	dist_pixel[pos_y][pos_x] = 1		#KALO DI KIRI/KANAN/ATAS/BAWAH
-					# print dist_pixel[pos_y][pos_x]
 			col += 1
 		bar.update(1)
 		row += 1
 	bar.close()
-	# print(dist_pixel)
 	return dist_pixel
 
-def compute_combined_weight(spec_diff, temp_diff, dist_pixel):
-	combined_pixel = np.ones([1199, 1199], dtype=float)
+def computeCombinedWeight(spec_diff, temp_diff, dist_pixel):
+	combined_pixel = np.ones([pixel_dimension, pixel_dimension], dtype=float)
 	row = 0
-	while(row<1199):
+	while(row<pixel_dimension):
 		col = 0
-		while(col < 1199):
+		while(col < pixel_dimension):
 			combined_pixel[row][col] = spec_diff[row][col] * temp_diff[row][col] * dist_pixel[row][col]
 			#Compute C[ijk]
 			col += 1
 		row += 1
-
-	print("\nCombined pixel [0][0] "+str(combined_pixel[0][0]))	
-	print("\nCombined pixel [0][1] "+str(combined_pixel[0][1]))
 	combined_sum = np.sum(combined_pixel)
-	weight_pixel = np.ones([1199, 1199], dtype=float)
+	weight_pixel = np.ones([pixel_dimension, pixel_dimension], dtype=float)
 	row = 0
 	print combined_sum
-	while(row < 1199):
+	while(row < pixel_dimension):
 		col = 0
-		while(col < 1199):
+		while(col < pixel_dimension):
 			if combined_pixel[row][col] != 0:
 				weight_pixel[row][col] = (1 / combined_pixel[row][col]) / (1 / combined_sum)
 			col += 1
 		row += 1
 	return weight_pixel
 
-def refine_pixel(candidate_pixel, spec_diff, temp_diff):
+def refinePixel(candidate_pixel, spec_diff, temp_diff):
 	spec_max = spec_diff.max()
 	temp_max = temp_diff.max()
 	row = 0
-	refined_pixel = np.ones([1199, 1199], dtype=float)
+	refined_pixel = np.ones([pixel_dimension, pixel_dimension], dtype=float)
 	print("\nSpec Max "+str(spec_max))
 	print("\nTemp Max "+str(temp_max))
-	while(row<1199):
+	while(row<pixel_dimension):
 		col = 0
-		while(col < 1199):
+		while(col < pixel_dimension):
 			if candidate_pixel[row][col] > (spec_max + noise_const) and candidate_pixel[row][col] > (temp_max + noise_const):
 				refined_pixel[row][col] = 0
 			else:
@@ -91,38 +83,38 @@ def refine_pixel(candidate_pixel, spec_diff, temp_diff):
 		row += 1
 	return refined_pixel
 
-def generate_prediction(Lk, Mk, M0, weight):
-	pixel_result = np.empty([1199, 1199], dtype=int)
+def generatePrediction(Lk, Mk, M0, weight):
+	pixel_result = np.empty([pixel_dimension, pixel_dimension], dtype=int)
 	row = 0
-	# bar = IncrementalBar('Processing', max=1199)
-	print "Generating Prediction Pixel\n"
-	while(row<1199):
+	print('Computing Prediction pixel')
+	bar = tqdm(total=pixel_dimension)
+	while(row<pixel_dimension):
 		col = 0
-		while(col < 1199):
+		while(col < pixel_dimension):
 			pixel_result[row][col] = int(weight[row][col] * (float(M0[row][col]) + float(Lk[row][col]) - float(Mk[row][col])))
 			col += 1
-		# bar.next()
+		bar.update(1)
 		row += 1
-	# bar.finish()
+	bar.close()
 	return pixel_result
 
-def write_pixel(pixel_result, target_file, pixel_type='regular'):
+def writePixel(pixel_result, target_file, pixel_type='regular'):
 	print "Writing result to file\n"
-	print pixel_type+"\n"
 	offset = len(pixel_result[0])
 	bar = tqdm(total=offset)
-	x_const = 65535.0
-	y_const = 4294967295.0
 	with open(target_file, 'w') as output_file:
 		row = 0
+		output_file.write(";\n")
+		output_file.write("; ENVI ASCII Output of file: H:\ALLAH\WV FIX\WV_red_1812.dat [Mon May 21 13:46:05 2018]\n")
+		output_file.write("; File Dimensions: 1125 samples x 1125 lines x 1 band\n")
+		output_file.write("; Line Format    : (1125i7)\n")
+		output_file.write(";\n")
 		while(row<offset):
 			col = 0
 			one_row = "    "
 			while(col < offset):
 				if pixel_type == 'final':
 					temp = pixel_result[row][col]
-					# if temp > x_const:
-					# 	temp = int((x_const * pixel_result[row][col]) / y_const)
 					temp = str(temp)
 				else:
 					temp = "{0:.2f}".format(pixel_result[row][col])
@@ -136,34 +128,24 @@ def write_pixel(pixel_result, target_file, pixel_type='regular'):
 	return
 
 if __name__ == '__main__':
-	Lkimg = central_filter.parseInputPixel("L7SR.05-24-01.txt")
-	Mkimg = central_filter.parseInputPixel("MOD09GHK.05-24-01.green.txt")
-	M0img = central_filter.parseInputPixel("MOD09GHK.06-04-01.green.txt")
-		
+	# Pixel contoh
+	# Lkimg = central_filter.parseInputPixel("L7SR.05-24-01.txt")
+	# Mkimg = central_filter.parseInputPixel("MOD09GHK.05-24-01.green.txt")
+	# M0img = central_filter.parseInputPixel("MOD09GHK.06-04-01.green.txt")
+
+	# Pixel asli
+	Lkimg = central_filter.parseInputPixel("WV_red_1812.txt")
+	Mkimg = central_filter.parseInputPixel("L8_red_0701.txt")
+	M0img = central_filter.parseInputPixel("L8_red_0411.txt")
+	
 	central_pixel = central_filter.getCentralPixel(Lkimg)
 	classified_pixel = central_filter.unsupervisedClassification(Lkimg, central_pixel)
-	print central_pixel[1][1]
-	print central_pixel[0][1]
-	spec_diff = compute_diff(Lkimg, Mkimg)
-	temporal_diff = compute_diff(Mkimg, M0img)
-	dist_pixel = compute_distance(classified_pixel, central_pixel)
+	spec_diff = computeDiff(Lkimg, Mkimg)
+	temporal_diff = computeDiff(Mkimg, M0img)
+	dist_pixel = computeDistance(classified_pixel, central_pixel)
 	
-	print("\nTemporal Differences [0][0] "+str(temporal_diff[0][0]))
-	print("\nSpectral Differences [0][0] "+str(spec_diff[0][0]))
-	print("\nDistance Pixel [0][0] "+str(dist_pixel[0][0]))
-	
-
-	candidate_pixel = refine_pixel(classified_pixel, spec_diff, temporal_diff)
-	
-	print("\nCandidate Pixel [0][0] "+str(candidate_pixel[0][0]))
-	
-	weight_pixel = compute_combined_weight(spec_diff, temporal_diff, dist_pixel)
-	pixel_result = generate_prediction(Lkimg, Mkimg, M0img, weight_pixel)
-	write_pixel(pixel_result, 'result[norefinechangeddist].txt', 'final')
-	# write_pixel(classified_pixel, 'classified.txt')
-	# write_pixel(weight_pixel, 'weight.txt')
-	# write_pixel(spec_diff, 'spec_diff.txt')
-	# write_pixel(temporal_diff, 'temporal_diff.txt')
-	# write_pixel(dist_pixel, 'distance.txt')
-	# write_pixel(candidate_pixel, 'refined_candidate.txt')
-	# write_pixel(central_pixel, 'central.txt')
+	candidate_pixel = refinePixel(classified_pixel, spec_diff, temporal_diff)
+		
+	weight_pixel = computeCombinedWeight(spec_diff, temporal_diff, dist_pixel)
+	pixel_result = generatePrediction(Lkimg, Mkimg, M0img, weight_pixel)
+	writePixel(pixel_result, 'result[target].txt', 'final')
