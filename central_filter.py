@@ -1,5 +1,8 @@
 import numpy as np
 
+pixel_dimension = 1125
+central_pixel_dimension = pixel_dimension - 2
+
 def parseInputPixel(filename):
 	images = []
 	with open(filename) as f:
@@ -20,22 +23,30 @@ def parseInputPixel(filename):
 		new_row = np.array(new_row)
 		stripped_line.append(new_row)
 	processed_img = np.array(stripped_line)
-	# print processed_img[0][0]
 	return processed_img
-	# center_pixel = getCentralPixel(processed_img)
-	# threshold_pixel = thresholding(processed_img, center_pixel)
-	# print(threshold_pixel.shape)
 
 def unsupervisedClassification(candidate_pixel, center_pixel):
 	row = 0
-	classified_pixel = np.zeros([1199, 1199], dtype=float)
-	while(row<1197):
+	classified_pixel = np.zeros([pixel_dimension, pixel_dimension], dtype=float)
+	while(row<central_pixel_dimension):
 		col = 0
-		while(col < 1197):
+		while(col < central_pixel_dimension):
 			threshold_pixel = center_pixel[row][col]
+			
+			min_pixel = 1000000
+			max_pixel = 0
 			for i in range(0,3):
 				for l in range(0, 3):
-					if float(candidate_pixel[row+i][col+l]) < center_pixel[row][col]:
+					# print min_pixel
+					if int(candidate_pixel[row+i][col+l]) > max_pixel:
+						max_pixel = int(candidate_pixel[row+i][col+l])	
+					if int(candidate_pixel[row+i][col+l]) < min_pixel:
+						min_pixel = int(candidate_pixel[row+i][col+l])
+
+			threshold_point = (float(min_pixel) + float(max_pixel)) / 2.0
+			for i in range(0,3):
+				for l in range(0, 3):
+					if float(candidate_pixel[row+i][col+l]) < threshold_point:
 						classified_pixel[row+i][col+l] = 0
 					else:
 						classified_pixel[row+i][col+l] = center_pixel[row][col]
@@ -45,42 +56,16 @@ def unsupervisedClassification(candidate_pixel, center_pixel):
 	
 def getCentralPixel(images):
 	row = 0
-	center_pixel = np.empty([1199, 1199], dtype=float)
-	while(row<1197):
+	center_pixel = np.empty([pixel_dimension, pixel_dimension], dtype=float)
+	while(row<central_pixel_dimension):
 		col = 0
-		while(col<1197):
+		while(col<central_pixel_dimension):
 			window_sum = 0
 			for i in range(0,3):
 				for l in range(0,3):
-					# print l
-					# print(row+i)
-					# print images[row+i][col+l]
 					window_sum += int(images[row+i][col+l])
-					# print window_sum
-			# print window_sum
 			new_pixel = float(window_sum)/9.0
-			# print new_pixel
 			center_pixel[row][col] = new_pixel
 			col += 1
 		row += 1
 	return np.array(center_pixel)
-
-# def thresholding(images, center_pixel):
-# 	row = 0
-# 	while(row<1197):
-# 		col = 0
-# 		while(col < 1197):
-# 			threshold_pixel = center_pixel[row][col]
-# 			for i in range(0,2):
-# 				for l in range(0, 2):
-# 					if float(images[row+i][col+l]) < center_pixel[row][col]:
-# 						images[row+i][col+l] = 0
-# 					else:
-# 						images[row+i][col+l] = center_pixel[row][col]
-# 			col += 1
-# 		row += 1
-# 	return images
-
-# if __name__ == '__main__':
-# 	parseInputPixel("L7SR.05-24-01.txt")
-# # 	
