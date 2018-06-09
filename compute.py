@@ -1,12 +1,16 @@
 import numpy as np
 import central_filter
+import write as w
 from math import sqrt
 from tqdm import tqdm
-
 noise_const = 0.005
 
 pixel_dimension = 1125
 central_pixel_dimension = pixel_dimension - 2
+
+Lkpixel = "WV_blue_1812.txt"
+Mkpixel = "L8_blue_0701.txt"
+M0pixel = "L8_blue_0411.txt"	
 
 def computeDiff(first_img, second_img):
 	diff_pixel = np.zeros([pixel_dimension, pixel_dimension], dtype=float)
@@ -95,45 +99,10 @@ def generatePrediction(Lk, Mk, M0, weight):
 	bar.close()
 	return pixel_result
 
-def writePixel(pixel_result, target_file, pixel_type='regular'):
-	print "Writing result to file\n"
-	offset = len(pixel_result[0])
-	bar = tqdm(total=offset)
-	with open(target_file, 'w') as output_file:
-		row = 0
-		output_file.write(";\n")
-		output_file.write("; ENVI ASCII Output of file: H:\ALLAH\WV FIX\WV_blue_1812.dat [Mon May 21 13:46:05 2018]\n")
-		output_file.write("; File Dimensions: 1125 samples x 1125 lines x 1 band\n")
-		output_file.write("; Line Format    : (1125i7)\n")
-		output_file.write(";\n")
-		while(row<offset):
-			col = 0
-			one_row = "    "
-			while(col < offset):
-				if pixel_type == 'final':
-					temp = pixel_result[row][col]
-					temp = str(temp)
-				else:
-					temp = "{0:.2f}".format(pixel_result[row][col])
-				one_row = one_row + temp + "    "
-				col += 1
-			row += 1
-			bar.update(1)
-			output_file.write(one_row)
-			output_file.write("\n")
-	bar.close()
-	return
-
 if __name__ == '__main__':
-	# Pixel contoh
-	# Lkimg = central_filter.parseInputPixel("L7SR.05-24-01.txt")
-	# Mkimg = central_filter.parseInputPixel("MOD09GHK.05-24-01.green.txt")
-	# M0img = central_filter.parseInputPixel("MOD09GHK.06-04-01.green.txt")
-
-	# Pixel asli
-	Lkimg = central_filter.parseInputPixel("WV_blue_1812.txt")
-	Mkimg = central_filter.parseInputPixel("L8_blue_0701.txt")
-	M0img = central_filter.parseInputPixel("L8_blue_0411.txt")
+	Lkimg = central_filter.parseInputPixel(Lkpixel)
+	Mkimg = central_filter.parseInputPixel(Mkpixel)
+	M0img = central_filter.parseInputPixel(M0pixel)
 	
 	central_pixel = central_filter.getCentralPixel(Lkimg)
 	classified_pixel = central_filter.unsupervisedClassification(Lkimg, central_pixel)
@@ -146,9 +115,4 @@ if __name__ == '__main__':
 
 	weight_pixel = computeCombinedWeight(spec_candidate, temporal_candidate, dist_pixel)
 	pixel_result = generatePrediction(Lkimg, Mkimg, M0img, weight_pixel)
-	#writePixel(pixel_result, 'result[blue].txt', 'final')
-	#writePixel(weight_pixel, 'weight_pixel.txt')
-	#writePixel(classified_pixel, 'classified_pixel.txt')
-	#writePixel(dist_pixel, 'dist_pixel.txt')
-	writePixel(spec_candidate, 'spec_candidate.txt')
-	writePixel(spec_refined, 'spec_refined.txt')
+	w.writePixel(pixel_result, 'result.txt')

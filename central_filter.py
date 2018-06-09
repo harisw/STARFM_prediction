@@ -58,23 +58,3 @@ def getCentralPixel(images):
 			col += 1
 		row += 1
 	return np.array(center_pixel)
-
-# def thresholding(images, center_pixel):
-# 	row = 0
-# 	while(row<1197):
-# 		col = 0
-# 		while(col < 1197):
-# 			threshold_pixel = center_pixel[row][col]
-# 			for i in range(0,2):
-# 				for l in range(0, 2):
-# 					if float(images[row+i][col+l]) < center_pixel[row][col]:
-# 						images[row+i][col+l] = 0
-# 					else:
-# 						images[row+i][col+l] = center_pixel[row][col]
-# 			col += 1
-# 		row += 1
-# 	return images
-
-# if __name__ == '__main__':
-# 	parseInputPixel("L7SR.05-24-01.txt")
-# # 	
