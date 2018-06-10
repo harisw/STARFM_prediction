@@ -12,15 +12,15 @@ def writePixel(pixel_result, target_file, pixel_type='regular'):
 		row = 0
 		output_file.write(";\n")
 		output_file.write("; ENVI ASCII Output\n")
-		output_file.write("; File Dimensions: "+pixel_dimension+" samples x "+pixel_dimension+" lines x 1 band\n")
-		output_file.write("; Line Format    : ("+pixel_dimension+"i7)\n")
+		output_file.write("; File Dimensions: "+str(pixel_dimension)+" samples x "+str(pixel_dimension)+" lines x 1 band\n")
+		output_file.write("; Line Format    : ("+str(pixel_dimension)+"i7)\n")
 		output_file.write(";\n")
 		while(row<offset):
 			col = 0
 			one_row = "    "
 			while(col < offset):
 				if pixel_type == 'final':
-					temp = pixel_result[row][col]
+					temp = int(pixel_result[row][col])
 					temp = str(temp)
 				else:
 					temp = "{0:.2f}".format(pixel_result[row][col])

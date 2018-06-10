@@ -5,12 +5,12 @@ from math import sqrt
 from tqdm import tqdm
 noise_const = 0.005
 
-pixel_dimension = 1125
+pixel_dimension = 1124
 central_pixel_dimension = pixel_dimension - 2
 
-Lkpixel = "WV_blue_1812.txt"
-Mkpixel = "L8_blue_0701.txt"
-M0pixel = "L8_blue_0411.txt"	
+Lkpixel = "WV_red_1812.txt"
+Mkpixel = "L8_red_0701.txt"
+M0pixel = "L8_red_0411.txt"	
 
 def computeDiff(first_img, second_img):
 	diff_pixel = np.zeros([pixel_dimension, pixel_dimension], dtype=float)

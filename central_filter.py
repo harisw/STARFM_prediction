@@ -1,5 +1,8 @@
 import numpy as np
 
+pixel_dimension = 1124
+central_pixel_dimension = pixel_dimension - 2
+
 def parseInputPixel(filename):
 	images = []
 	with open(filename) as f:
@@ -28,10 +31,10 @@ def parseInputPixel(filename):
 
 def unsupervisedClassification(candidate_pixel, center_pixel):
 	row = 0
-	classified_pixel = np.zeros([1199, 1199], dtype=float)
-	while(row<1197):
+	classified_pixel = np.zeros([pixel_dimension, pixel_dimension], dtype=float)
+	while(row<central_pixel_dimension):
 		col = 0
-		while(col < 1197):
+		while(col < central_pixel_dimension):
 			threshold_pixel = center_pixel[row][col]
 			for i in range(0,2):
 				for l in range(0, 2):
@@ -45,10 +48,10 @@ def unsupervisedClassification(candidate_pixel, center_pixel):
 	
 def getCentralPixel(images):
 	row = 0
-	center_pixel = np.empty([1199, 1199], dtype=float)
-	while(row<1199):
+	center_pixel = np.empty([pixel_dimension, pixel_dimension], dtype=float)
+	while(row<pixel_dimension):
 		col = 0
-		while(col<1199):
+		while(col<pixel_dimension):
 			window_sum = 0
 			for i in range(0,2):
 				for l in range(0,2):
