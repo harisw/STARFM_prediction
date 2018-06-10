@@ -57,9 +57,9 @@ def unsupervisedClassification(candidate_pixel, center_pixel):
 def getCentralPixel(images):
 	row = 0
 	center_pixel = np.empty([pixel_dimension, pixel_dimension], dtype=float)
-	while(row<pixel_dimension):
+	while(row<central_pixel_dimension):
 		col = 0
-		while(col<pixel_dimension):
+		while(col<central_pixel_dimension):
 			window_sum = 0
 			for i in range(0,3):
 				for l in range(0,3):
