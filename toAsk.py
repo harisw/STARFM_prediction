@@ -1,0 +1,1 @@
+DI distance pixel smuanya 1.4, karna bisa jadi mereka similar ke tiap centralnya, tp benar yg pasti ada satu pixel yg distnya 1.0 posisi[y][-2]

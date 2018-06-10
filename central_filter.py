@@ -23,11 +23,7 @@ def parseInputPixel(filename):
 		new_row = np.array(new_row)
 		stripped_line.append(new_row)
 	processed_img = np.array(stripped_line)
-	# print processed_img[0][0]
 	return processed_img
-	# center_pixel = getCentralPixel(processed_img)
-	# threshold_pixel = thresholding(processed_img, center_pixel)
-	# print(threshold_pixel.shape)
 
 def unsupervisedClassification(candidate_pixel, center_pixel):
 	row = 0
@@ -36,9 +32,21 @@ def unsupervisedClassification(candidate_pixel, center_pixel):
 		col = 0
 		while(col < central_pixel_dimension):
 			threshold_pixel = center_pixel[row][col]
-			for i in range(0,2):
-				for l in range(0, 2):
-					if float(candidate_pixel[row+i][col+l]) < center_pixel[row][col]:
+			
+			min_pixel = 1000000
+			max_pixel = 0
+			for i in range(0,3):
+				for l in range(0, 3):
+					# print min_pixel
+					if int(candidate_pixel[row+i][col+l]) > max_pixel:
+						max_pixel = int(candidate_pixel[row+i][col+l])	
+					if int(candidate_pixel[row+i][col+l]) < min_pixel:
+						min_pixel = int(candidate_pixel[row+i][col+l])
+
+			threshold_point = (float(min_pixel) + float(max_pixel)) / 2.0
+			for i in range(0,3):
+				for l in range(0, 3):
+					if float(candidate_pixel[row+i][col+l]) < threshold_point:
 						classified_pixel[row+i][col+l] = 0
 					else:
 						classified_pixel[row+i][col+l] = center_pixel[row][col]
@@ -53,10 +61,10 @@ def getCentralPixel(images):
 		col = 0
 		while(col<pixel_dimension):
 			window_sum = 0
-			for i in range(0,2):
-				for l in range(0,2):
-					window_sum += float(images[row+i][col+l])
-			new_pixel = window_sum/9
+			for i in range(0,3):
+				for l in range(0,3):
+					window_sum += int(images[row+i][col+l])
+			new_pixel = float(window_sum)/9.0
 			center_pixel[row][col] = new_pixel
 			col += 1
 		row += 1
