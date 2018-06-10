@@ -115,4 +115,5 @@ if __name__ == '__main__':
 
 	weight_pixel = computeCombinedWeight(spec_candidate, temporal_candidate, dist_pixel)
 	pixel_result = generatePrediction(Lkimg, Mkimg, M0img, weight_pixel)
-	w.writePixel(pixel_result, 'result.txt')
+	# w.writePixel(pixel_result, 'result.txt')
+	w.writePixelAsRow(pixel_result, 'row_result.txt')
