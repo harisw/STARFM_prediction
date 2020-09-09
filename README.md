@@ -1,3 +1,4 @@
+
 # Spatial Temporal Adaptive Reflectance Fusion Model (STARFM)
 
 This is a short implementation of STARFM algorithm in Python language
@@ -28,7 +29,7 @@ pip install numpy tqdm
 ## Running the tests
 
 To start your first prediction, change these three line
-in compute.py according to your input filenames
+in [compute.py](https://github.com/harisw/STARFM_prediction/blob/master/compute.py) according to your input filenames
 
 ```
 Lkpixel = "WV_blue_1812.txt"
@@ -37,7 +38,7 @@ M0pixel = "L8_blue_0411.txt"
 
 ```
 
-then, change the pixel dimension variable according to your input pixel here in compute.py and write.py
+then, change the pixel dimension variable according to your input pixel here in [compute.py](https://github.com/harisw/STARFM_prediction/blob/master/compute.py) and [write.py](https://github.com/harisw/STARFM_prediction/blob/master/write.py)
 
 ```
 pixel_dimension = 1125
@@ -53,10 +54,12 @@ python compute.py
 
 * [Numpy](http://www.dropwizard.io/1.0.2/docs/) - Scientific computation support
 * [tqdm](https://github.com/tqdm/tqdm) - Used to generate progress bar
+* [ArcGIS](https://desktop.arcgis.com/en/) - Data source and preparation
 
 ## Authors
 
-* **Hari Setiawan** - *Initial work*
+* **Hari Setiawan** - *Implementation Detail*
+* **Karisma Rizkika** - *Original ideas*
 
 ## License
 
